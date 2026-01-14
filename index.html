@@ -17,12 +17,12 @@
             height: 100vh;
             font-family: 'Roboto', sans-serif;
             overflow: hidden;
-            user-select: none; /* Metin seçimini engelle */
         }
 
+        /* 9:16 Mobil Ebat Simülasyonu */
         #game-container {
-            width: 360px;
-            height: 640px;
+            width: 360px; /* Yaklaşık 9 birim */
+            height: 640px; /* Yaklaşık 16 birim */
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
@@ -34,21 +34,7 @@
             border: 4px solid #fff;
         }
 
-        /* Ses Kontrol Butonu */
-        #mute-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.3);
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            padding: 5px 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 20;
-        }
-
+        /* Üst Bilgi Paneli */
         .header {
             padding: 15px;
             background: rgba(0, 0, 0, 0.3);
@@ -57,7 +43,6 @@
             align-items: center;
             font-weight: bold;
             font-size: 1.1rem;
-            margin-top: 30px; /* Mute butonu için yer */
         }
 
         .timer-box {
@@ -76,6 +61,7 @@
             border-radius: 20px;
         }
 
+        /* Soru Alanı */
         .question-area {
             flex: 1;
             display: flex;
@@ -103,6 +89,7 @@
             border: 1px solid rgba(255,255,255,0.2);
         }
 
+        /* Seçenekler Alanı */
         .options-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -124,20 +111,21 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .option-btn:active { transform: scale(0.95); }
+        .option-btn:active {
+            transform: scale(0.95);
+        }
 
         .option-btn.correct {
             background: #2ecc71 !important;
             color: white;
-            animation: bounce 0.5s;
         }
 
         .option-btn.wrong {
             background: #e74c3c !important;
             color: white;
-            animation: shake 0.5s;
         }
 
+        /* Footer */
         .footer {
             position: absolute;
             bottom: 5px;
@@ -148,6 +136,7 @@
             pointer-events: none;
         }
 
+        /* Ekranlar (Giriş / Sonuç) */
         .screen {
             position: absolute;
             top: 0;
@@ -165,7 +154,9 @@
             box-sizing: border-box;
         }
 
-        .hidden { display: none !important; }
+        .hidden {
+            display: none !important;
+        }
 
         h1 { margin-bottom: 10px; }
         p { margin-bottom: 20px; font-size: 1.1rem; line-height: 1.4; }
@@ -189,22 +180,11 @@
             50% { transform: translateY(-10px); }
             100% { transform: translateY(0px); }
         }
+
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
-        }
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-            40% {transform: translateY(-10px);}
-            60% {transform: translateY(-5px);}
         }
 
     </style>
@@ -212,12 +192,10 @@
 <body>
 
     <div id="game-container">
-        <button id="mute-btn" onclick="toggleMute()">🔊</button>
-
         <div id="start-screen" class="screen">
             <div style="font-size: 4rem; margin-bottom: 20px;">🧬</div>
             <h1>TYT Biyoloji<br>İnorganik Bileşenler</h1>
-            <p>Bilgilerini test etmeye hazır mısın?<br>Sesleri açmayı unutma! 🎧</p>
+            <p>Bilgilerini test etmeye hazır mısın?<br>Doğru mineral ve bileşenleri eşleştir, puanları topla!</p>
             <button class="start-btn" onclick="startGame()">Sınavı Başlat</button>
             <div class="footer">Tasarım Naci Karhan tarafından yapılmıştır</div>
         </div>
@@ -236,4 +214,191 @@
             <div class="score-box">Puan: <span id="score">0</span></div>
         </div>
 
-        <div
+        <div class="question-area">
+            <div class="molecule-icon" id="q-icon">💧</div>
+            <div class="question-text" id="question-text">
+                Sorular yükleniyor...
+            </div>
+        </div>
+
+        <div class="options-grid" id="options-container">
+            </div>
+
+        <div class="footer">Tasarım Naci Karhan tarafından yapılmıştır</div>
+    </div>
+
+    <script>
+        // Biyoloji MEB Müfredatına Uygun Soru Havuzu
+        const questions = [
+            {
+                text: "Hemoglobinin yapısına katılarak kanda oksijen taşınmasını sağlayan mineral hangisidir?",
+                correct: "Demir (Fe)",
+                options: ["Demir (Fe)", "Kalsiyum (Ca)", "Magnezyum (Mg)", "İyot (I)"],
+                icon: "🩸"
+            },
+            {
+                text: "Klorofil pigmentinin yapısında bulunan ve bitkilerin yeşil renk almasını sağlayan mineral?",
+                correct: "Magnezyum (Mg)",
+                options: ["Demir (Fe)", "Magnezyum (Mg)", "Çinko (Zn)", "Sodyum (Na)"],
+                icon: "🌿"
+            },
+            {
+                text: "Eksikliğinde Tiroid bezi hastalıklarından biri olan 'Guatr' görülen mineral?",
+                correct: "İyot (I)",
+                options: ["Potasyum (K)", "İyot (I)", "Klor (Cl)", "Flor (F)"],
+                icon: "🩺"
+            },
+            {
+                text: "Suyun moleküllerinin birbirini tutması özelliğine ne ad verilir?",
+                correct: "Kohezyon",
+                options: ["Adhezyon", "Kohezyon", "Yüzey Gerilimi", "Özgül Isı"],
+                icon: "💧"
+            },
+            {
+                text: "Kemik ve dişlerin yapısına en fazla katılan, kas kasılmasında görevli mineral?",
+                correct: "Kalsiyum (Ca)",
+                options: ["Fosfor (P)", "Kalsiyum (Ca)", "Kükürt (S)", "Potasyum (K)"],
+                icon: "🦴"
+            },
+            {
+                text: "Mide özsuyunun oluşumunda görev alan ve asitliği sağlayan mineral?",
+                correct: "Klor (Cl)",
+                options: ["Sodyum (Na)", "Klor (Cl)", "Potasyum (K)", "Magnezyum (Mg)"],
+                icon: "🧪"
+            },
+            {
+                text: "Suyun, cam boru gibi farklı bir yüzeye yapışma özelliğine ne denir?",
+                correct: "Adhezyon",
+                options: ["Kohezyon", "Adhezyon", "Buharlaşma", "Çözücülük"],
+                icon: "🌧️"
+            },
+            {
+                text: "DNA, RNA ve ATP'nin yapısına katılan önemli mineral hangisidir?",
+                correct: "Fosfor (P)",
+                options: ["Azot (N)", "Fosfor (P)", "Kalsiyum (Ca)", "Demir (Fe)"],
+                icon: "⚡"
+            },
+            {
+                text: "Sinirsel iletimde görevli olan ve hücre içi-dışı yük farkını oluşturan ikili?",
+                correct: "Na - K",
+                options: ["Ca - P", "Fe - Mg", "Na - K", "I - F"],
+                icon: "🧠"
+            },
+            {
+                text: "Ortamın H+ iyonu derişimi arttığında pH değeri nasıl değişir?",
+                correct: "pH Düşer (Asidik)",
+                options: ["pH Artar (Bazik)", "pH Düşer (Asidik)", "Değişmez", "Nötrleşir"],
+                icon: "📉"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 60; 
+        let timerInterval;
+        let isAnswering = false;
+
+        // Shuffle Array Fonksiyonu
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 60;
+            
+            document.getElementById('score').innerText = score;
+            document.getElementById('time').innerText = timeLeft;
+            
+            // Ekranları yönet
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.add('hidden');
+            
+            // Soruları karıştır
+            shuffle(questions);
+            currentQuestionIndex = 0;
+            
+            startTimer();
+            loadQuestion();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                endGame();
+                return;
+            }
+
+            const q = questions[currentQuestionIndex];
+            document.getElementById('question-text').innerText = q.text;
+            document.getElementById('q-icon').innerText = q.icon;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            let shuffledOptions = [...q.options];
+            shuffle(shuffledOptions);
+
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(btn, opt, q.correct);
+                optionsContainer.appendChild(btn);
+            });
+
+            isAnswering = true;
+        }
+
+        function checkAnswer(btn, selected, correct) {
+            if (!isAnswering) return;
+            isAnswering = false;
+
+            const buttons = document.querySelectorAll('.option-btn');
+
+            if (selected === correct) {
+                btn.classList.add('correct');
+                score += 10;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                // Doğru olanı göster
+                buttons.forEach(b => {
+                    if (b.innerText === correct) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('final-score-text').innerText = "Toplam Puan: " + score;
+
+            let evalText = "";
+            if (score >= 90) evalText = "Mükemmel! Bir Biyolog kadar hakimsin.";
+            else if (score >= 70) evalText = "Gayet iyi! İnorganik bileşenler cepte.";
+            else if (score >= 40) evalText = "Fena değil, ama biraz daha tekrar yapmalısın.";
+            else evalText = "Konu eksiklerin var, mineralleri tekrar etmelisin!";
+
+            document.getElementById('evaluation-text').innerText = evalText;
+        }
+    </script>
+</body>
+</html>
