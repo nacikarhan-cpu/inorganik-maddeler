@@ -155,7 +155,7 @@
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         h1 { margin-bottom: 10px; }
@@ -210,7 +210,7 @@
         </div>
 
         <div class="header">
-            <div class="timer-box">⏱ <span id="time">30</span></div>
+            <div class="timer-box">⏱ <span id="time">60</span></div>
             <div class="score-box">Puan: <span id="score">0</span></div>
         </div>
 
@@ -294,21 +294,23 @@
 
         let currentQuestionIndex = 0;
         let score = 0;
-        let timeLeft = 45; // Toplam süre
+        let timeLeft = 60; 
         let timerInterval;
         let isAnswering = false;
 
-        // Shuffle Array Fonksiyonu (Soruları ve şıkları karıştırmak için)
+        // Shuffle Array Fonksiyonu
         function shuffle(array) {
             return array.sort(() => Math.random() - 0.5);
         }
 
         function startGame() {
             score = 0;
-            timeLeft = 60; // 60 Saniye süre
+            timeLeft = 60;
+            
             document.getElementById('score').innerText = score;
             document.getElementById('time').innerText = timeLeft;
             
+            // Ekranları yönet
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('end-screen').classList.add('hidden');
             
@@ -344,7 +346,6 @@
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
 
-            // Şıkları karıştırarak buton oluştur
             let shuffledOptions = [...q.options];
             shuffle(shuffledOptions);
 
@@ -359,4 +360,45 @@
             isAnswering = true;
         }
 
-        function check
+        function checkAnswer(btn, selected, correct) {
+            if (!isAnswering) return;
+            isAnswering = false;
+
+            const buttons = document.querySelectorAll('.option-btn');
+
+            if (selected === correct) {
+                btn.classList.add('correct');
+                score += 10;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                // Doğru olanı göster
+                buttons.forEach(b => {
+                    if (b.innerText === correct) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('final-score-text').innerText = "Toplam Puan: " + score;
+
+            let evalText = "";
+            if (score >= 90) evalText = "Mükemmel! Bir Biyolog kadar hakimsin.";
+            else if (score >= 70) evalText = "Gayet iyi! İnorganik bileşenler cepte.";
+            else if (score >= 40) evalText = "Fena değil, ama biraz daha tekrar yapmalısın.";
+            else evalText = "Konu eksiklerin var, mineralleri tekrar etmelisin!";
+
+            document.getElementById('evaluation-text').innerText = evalText;
+        }
+    </script>
+</body>
+</html>
